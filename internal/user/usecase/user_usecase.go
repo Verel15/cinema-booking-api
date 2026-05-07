@@ -42,25 +42,25 @@ func (u *userUsecase) CreateUser(req dto.CreateUserRequest) (*dto.UserResponse, 
 }
 
 
-func (u *userUsecase) GetAllUsers(filter dto.UserFilter) ([]dto.UserResponse, error) {
-	users, err := u.repo.GetAll(filter)
+func (u *userUsecase) GetAllUsers(filter dto.UserFilter) ([]dto.UserResponse, int64, error) {
+	users, total, err := u.repo.GetAll(filter)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	var res []dto.UserResponse
-	for _, user := range users {
-		res = append(res, dto.UserResponse{
-			ID: user.ID,
-			Username: user.Username,
-			Email: user.Email,
-			Role: user.Role,
-			Status: user.Status,
+	res := make([]dto.UserResponse, len(users))
+	for i, user := range users {
+		res[i] = dto.UserResponse{
+			ID:        user.ID,
+			Username:  user.Username,
+			Email:     user.Email,
+			Role:      user.Role,
+			Status:    user.Status,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
-		})
+		}
 	}
-	return res, nil
+	return res, total, nil
 }
 
 func (u *userUsecase) GetUserByUsername(username string) (*domain.User, error) {

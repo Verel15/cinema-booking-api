@@ -3,6 +3,7 @@ package http
 import (
 	"cinema-booking-api/internal/movie/domain"
 	"cinema-booking-api/internal/movie/dto"
+	"cinema-booking-api/pkg/pagination"
 	"cinema-booking-api/pkg/response"
 	"net/http"
 
@@ -40,13 +41,18 @@ func (h *MovieHandler) GetAllMovies(c *gin.Context) {
 		return
 	}
 
-	movies, err := h.usecase.GetAllMovies(filter)
+	movies, total, err := h.usecase.GetAllMovies(filter)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	response.Success(c, http.StatusOK, movies)
+	response.SuccessPaginated(c, http.StatusOK, movies, response.Pagination{
+		Page:       filter.Page,
+		Limit:      filter.Limit,
+		Total:      total,
+		TotalPages: pagination.TotalPages(total, filter.Limit),
+	})
 }
 
 func (h *MovieHandler) GetMovieByID(c *gin.Context) {

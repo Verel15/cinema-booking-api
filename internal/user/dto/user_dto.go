@@ -2,6 +2,7 @@ package dto
 
 import (
 	"cinema-booking-api/pkg/enums"
+	"cinema-booking-api/pkg/pagination"
 	"time"
 )
 
@@ -23,8 +24,9 @@ type UserResponse struct {
 }
 
 type UserFilter struct {
-	Status string `form:"status"`
-	Role string `form:"role"`
+	pagination.Query
+	Status   string `form:"status"`
+	Role     string `form:"role"`
 	Username string `form:"username"`
-	Email string `form:"email"`
+	Email    string `form:"email"`
 }

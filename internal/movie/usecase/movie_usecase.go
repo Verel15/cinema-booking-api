@@ -35,10 +35,10 @@ func (u *movieUsecase) CreateMovie(req dto.CreateMovieRequest) (*dto.MovieRespon
 	return u.mapToResponse(m), nil
 }
 
-func (u *movieUsecase) GetAllMovies(filter dto.MovieFilter) ([]dto.MovieResponse, error) {
-	movies, err := u.repo.GetAll(filter)
+func (u *movieUsecase) GetAllMovies(filter dto.MovieFilter) ([]dto.MovieResponse, int64, error) {
+	movies, total, err := u.repo.GetAll(filter)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	responses := make([]dto.MovieResponse, len(movies))
@@ -46,7 +46,7 @@ func (u *movieUsecase) GetAllMovies(filter dto.MovieFilter) ([]dto.MovieResponse
 		responses[i] = *u.mapToResponse(&m)
 	}
 
-	return responses, nil
+	return responses, total, nil
 }
 
 func (u *movieUsecase) GetMovieByID(id string) (*dto.MovieResponse, error) {

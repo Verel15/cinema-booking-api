@@ -18,24 +18,28 @@ func (r *gormMovieRepository) Create(m *domain.Movie) error {
 	return r.db.Create(m).Error
 }
 
-func (r *gormMovieRepository) GetAll(filter dto.MovieFilter) ([]domain.Movie, error) {
+func (r *gormMovieRepository) GetAll(filter dto.MovieFilter) ([]domain.Movie, int64, error) {
 	var movies []domain.Movie
+	var total int64
+
 	query := r.db.Model(&domain.Movie{})
 
 	if filter.Status != "" {
 		query = query.Where("status = ?", filter.Status)
 	}
-
 	if filter.Title != "" {
 		query = query.Where("title ILIKE ?", "%"+filter.Title+"%")
 	}
-
 	if filter.Genre != "" {
 		query = query.Where("genre = ?", filter.Genre)
 	}
 
-	err := query.Find(&movies).Error
-	return movies, err
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := query.Offset(filter.Offset()).Limit(filter.Limit).Find(&movies).Error
+	return movies, total, err
 }
 
 func (r *gormMovieRepository) GetByID(id string) (*domain.Movie, error) {

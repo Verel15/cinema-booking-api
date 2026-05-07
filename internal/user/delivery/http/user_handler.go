@@ -3,6 +3,7 @@ package delivery
 import (
 	"cinema-booking-api/internal/user/domain"
 	"cinema-booking-api/internal/user/dto"
+	"cinema-booking-api/pkg/pagination"
 	"cinema-booking-api/pkg/response"
 	"net/http"
 
@@ -40,13 +41,18 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 		return
 	}
 
-	users, err := h.usecase.GetAllUsers(filter)
+	users, total, err := h.usecase.GetAllUsers(filter)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	response.Success(c, http.StatusOK, users)
+	response.SuccessPaginated(c, http.StatusOK, users, response.Pagination{
+		Page:       filter.Page,
+		Limit:      filter.Limit,
+		Total:      total,
+		TotalPages: pagination.TotalPages(total, filter.Limit),
+	})
 }
 
 

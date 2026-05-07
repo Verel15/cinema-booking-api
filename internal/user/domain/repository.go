@@ -4,7 +4,7 @@ import "cinema-booking-api/internal/user/dto"
 
 type UserRepository interface {
 	Create(user *User) error
-	GetAll(filter dto.UserFilter) ([]User, error)
+	GetAll(filter dto.UserFilter) ([]User, int64, error)
 	GetByUsername(username string) (*User, error)
 }
 

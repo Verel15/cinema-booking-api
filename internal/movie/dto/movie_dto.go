@@ -2,6 +2,7 @@ package dto
 
 import (
 	"cinema-booking-api/pkg/enums"
+	"cinema-booking-api/pkg/pagination"
 	"time"
 )
 
@@ -39,6 +40,7 @@ type MovieResponse struct {
 }
 
 type MovieFilter struct {
+	pagination.Query
 	Status string `form:"status"`
 	Title  string `form:"title"`
 	Genre  string `form:"genre"`

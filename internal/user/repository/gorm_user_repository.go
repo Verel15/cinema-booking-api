@@ -20,29 +20,31 @@ func (r *gormUserRepository) Create(user *domain.User) error {
 
 }
 
-func (r *gormUserRepository) GetAll(filter dto.UserFilter) ([]domain.User, error) {
+func (r *gormUserRepository) GetAll(filter dto.UserFilter) ([]domain.User, int64, error) {
 	var users []domain.User
+	var total int64
+
 	query := r.db.Model(&domain.User{})
 
 	if filter.Status != "" {
 		query = query.Where("status = ?", filter.Status)
 	}
-
 	if filter.Role != "" {
 		query = query.Where("role = ?", filter.Role)
 	}
-
 	if filter.Username != "" {
 		query = query.Where("username ILIKE ?", "%"+filter.Username+"%")
 	}
-
 	if filter.Email != "" {
-		println("Filtering by email:", filter.Email)
 		query = query.Where("email ILIKE ?", "%"+filter.Email+"%")
 	}
 
-	err := query.Find(&users).Error
-	return users, err
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := query.Offset(filter.Offset()).Limit(filter.Limit).Find(&users).Error
+	return users, total, err
 }
 
 func (r *gormUserRepository) GetByUsername(username string) (*domain.User, error) {
